@@ -1,5 +1,6 @@
 ﻿using JevoGastosCore.Model;
 using System;
+using System.Linq;
 
 namespace JevoGastosCore.ModelView
 {
@@ -38,6 +39,11 @@ namespace JevoGastosCore.ModelView
             Context.SaveChanges();
             UpdateTotal(transaccion);
             return transaccion;
+        }
+
+        public DAOList Get()
+        {
+            return new DAOList(Context.Transacciones.ToList());
         }
 
         private Transaccion Add<O, D>(O origen, D destino, double valor, string descripcion)
