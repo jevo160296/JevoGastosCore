@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace JevoGastosCore.ModelView
+namespace JevoGastosCore.Esqueleto
 {
     public abstract class Container<T>
         where T : DbContext

@@ -1,35 +1,35 @@
-﻿using JevoGastosCore.Context;
-using JevoGastosCore.Model;
+﻿using JevoGastosCore.Model;
 using System.Linq;
 
 namespace JevoGastosCore.ModelView
 {
-    public class EtiquetaDAO:DAO<Etiqueta, GastosContext, GastosContainer>
+    public class EtiquetaDAO : JevoGastosDAO<Etiqueta>
     {
-        public EtiquetaDAO(GastosContainer gastosContainer)
-        {
-            this.Container = gastosContainer;
-        }
+        public EtiquetaDAO(GastosContainer gastosContainer) : base(gastosContainer) { }
 
-        public DAOList GetEtiquetas()
+        public DAOList Get<T>()
+            where T : Etiqueta
         {
-            return new DAOList(Context.Etiquetas.ToList());
+            return new DAOList(Context.Etiquetas.OfType<T>().ToList());
         }
-        public Etiqueta Add(string name,TipoEtiqueta tipoEtiqueta)
+        public static void UpdateTotal(Etiqueta etiqueta, GastosContext context)
         {
-            Etiqueta newEtiqueta = LazyAdd(name, tipoEtiqueta);
-            Context.SaveChanges();
-            return newEtiqueta;
+            etiqueta.Total =
+                context.Transacciones.Where(p => p.DestinoId == etiqueta.Id).Sum(p => p.Valor) -
+                context.Transacciones.Where(p => p.OrigenId == etiqueta.Id).Sum(p => p.Valor);
+            EtiquetaDAO.Update(etiqueta, context);
         }
-        public Etiqueta LazyAdd(string name, TipoEtiqueta tipoEtiqueta)
+        public static Etiqueta Update(Etiqueta etiqueta, GastosContext context)
         {
-            Etiqueta newEtiqueta = new Etiqueta()
-            {
-                Name = name,
-                TipoEtiqueta = tipoEtiqueta,
-            };
-            Context.Etiquetas.Add(newEtiqueta);
-            return newEtiqueta;
+            context.Etiquetas.Update(etiqueta);
+            context.SaveChanges();
+            return etiqueta;
+        }
+        public static Etiqueta Delete(Etiqueta etiqueta, GastosContext context)
+        {
+            context.Etiquetas.Remove(etiqueta);
+            context.SaveChanges();
+            return etiqueta;
         }
     }
 }

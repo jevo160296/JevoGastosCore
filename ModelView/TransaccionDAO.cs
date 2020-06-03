@@ -1,48 +1,101 @@
-﻿using JevoGastosCore.Context;
-using JevoGastosCore.Model;
+﻿using JevoGastosCore.Model;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace JevoGastosCore.ModelView
 {
-    public class TransaccionDAO:DAO<Transaccion, GastosContext, GastosContainer>
+    public class TransaccionDAO : JevoGastosDAO<Transaccion>
     {
-        public TransaccionDAO(GastosContainer gastosContainer)
+        public TransaccionDAO(GastosContainer gastosContainer) : base(gastosContainer) { }
+
+        public Transaccion Transaccion<O, D>(O origen, D destino, double valor, string descripcion, DateTime? fecha = null)
+            where O : Etiqueta
+            where D : Etiqueta
         {
-            this.Container = gastosContainer;
+            return Add(origen, destino, valor, descripcion, fecha);
+        }
+        public Transaccion Entrada(Ingreso origen, Cuenta destino, double valor, string descripcion, DateTime? fecha = null)
+        {
+            return Add(origen, destino, valor, descripcion, fecha);
+
+        }
+        public Transaccion Movimiento(Cuenta origen, Cuenta destino, double valor, string descripcion, DateTime? fecha = null)
+        {
+            return Add(origen, destino, valor, descripcion, fecha);
+        }
+        public Transaccion Salida(Cuenta origen, Gasto destino, double valor, string descripcion, DateTime? fecha = null)
+        {
+            return Add(origen, destino, valor, descripcion, fecha);
         }
 
-        public Transaccion Add(
-            TipoTransaccion tipoTransaccion,
-            Etiqueta origen,
-            Etiqueta destino,
-            double valor,
-            DateTime fecha,
-            string descripcion)
+        public Transaccion Actualizar(Transaccion transaccion)
         {
-            Transaccion newTransaccion=new Transaccion() 
+            return Update(transaccion);
+        }
+
+        public Transaccion Remove(Transaccion transaccion)
+        {
+            this.Context.Transacciones.Remove(transaccion);
+            Context.SaveChanges();
+            UpdateTotal(transaccion);
+            return transaccion;
+        }
+
+        private Transaccion Add<O, D>(O origen, D destino, double valor, string descripcion)
+            where O : Etiqueta
+            where D : Etiqueta
+        {
+            return Add(origen, destino, valor, descripcion, DateTime.Now);
+        }
+        private Transaccion Add<O, D>(O origen, D destino, double valor, string descripcion, DateTime? fecha)
+            where O : Etiqueta
+            where D : Etiqueta
+        {
+            if (fecha is null)
             {
-                TipoTransaccion=tipoTransaccion,
-                Origen=origen,
-                Destino=destino,
-                Valor=valor,
-                Fecha=fecha,
-                Descripcion=descripcion,
+                return Add(origen, destino, valor, descripcion);
+            }
+            else
+            {
+                return Add(origen, destino, valor, descripcion, (DateTime)fecha);
+            }
+        }
+        private Transaccion Add<O, D>(O origen, D destino, double valor, string descripcion, DateTime fecha)
+            where O : Etiqueta
+            where D : Etiqueta
+        {
+            Transaccion newTransaccion = new Transaccion()
+            {
+                Origen = origen,
+                Destino = destino,
+                Valor = valor,
+                Fecha = fecha,
+                Descripcion = descripcion,
             };
             Add(newTransaccion);
             return newTransaccion;
         }
-        public Transaccion Add(Transaccion transaccion)
-        {
-            Transaccion newTransaccion= LazyAdd(transaccion);
-            Context.SaveChanges();
-            return newTransaccion;
-        }
-        public Transaccion LazyAdd(Transaccion transaccion)
+
+        private Transaccion Add(Transaccion transaccion)
         {
             this.Context.Transacciones.Add(transaccion);
+            Context.SaveChanges();
+            UpdateTotal(transaccion);
             return transaccion;
         }
+        private Transaccion Update(Transaccion transaccion)
+        {
+            Context.Transacciones.Update(transaccion);
+            Context.SaveChanges();
+            UpdateTotal(transaccion);
+            return transaccion;
+        }
+
+        private Transaccion UpdateTotal(Transaccion transaccion)
+        {
+            EtiquetaDAO.UpdateTotal(transaccion.Origen, Context);
+            EtiquetaDAO.UpdateTotal(transaccion.Destino, Context);
+            return transaccion;
+        }
+
     }
 }

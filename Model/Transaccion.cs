@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace JevoGastosCore.Model
 {
     public class Transaccion
     {
         public int Id { get; set; }
-
-        public int TipoTransaccionId { get; set; }
-        public TipoTransaccion TipoTransaccion { get; set; }
 
         public DateTime Fecha { get; set; }
 
