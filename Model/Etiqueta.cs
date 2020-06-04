@@ -13,10 +13,25 @@ namespace JevoGastosCore.Model
         public List<Transaccion> TransaccionesOrigen { get; set; }
         public List<Transaccion> TransaccionesDestino { get; set; }
 
+        public double Total { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            Etiqueta casted = obj as Etiqueta;
+            if (casted is null)
+            {
+                return false;
+            }
+            return casted.Id == this.Id;
+        }
+        public override int GetHashCode()
+        {
+            return this.Id.GetHashCode();
+        }
         public override string ToString()
         {
             return $"{Name}";
         }
-        public double Total { get; set; }
+        
     }
 }

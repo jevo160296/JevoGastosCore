@@ -8,6 +8,19 @@ namespace JevoGastosCore.ModelView
     {
         public TransaccionDAO(GastosContainer gastosContainer) : base(gastosContainer) { }
 
+        private new DAOList items = null;
+        public override DAOList Items
+        {
+            get
+            {
+                if (items is null)
+                {
+                    items = Get();
+                }
+                return items;
+            }
+        }
+
         public Transaccion Transaccion<O, D>(O origen, D destino, double valor, string descripcion, DateTime? fecha = null)
             where O : Etiqueta
             where D : Etiqueta
@@ -36,6 +49,10 @@ namespace JevoGastosCore.ModelView
         public Transaccion Remove(Transaccion transaccion)
         {
             this.Context.Transacciones.Remove(transaccion);
+            if (!(items is null))
+            {
+                Items.Remove(transaccion);
+            }
             Context.SaveChanges();
             UpdateTotal(transaccion);
             return transaccion;
@@ -84,6 +101,10 @@ namespace JevoGastosCore.ModelView
         private Transaccion Add(Transaccion transaccion)
         {
             this.Context.Transacciones.Add(transaccion);
+            if (!(items is null))
+            {
+                Items.Add(transaccion);
+            }
             Context.SaveChanges();
             UpdateTotal(transaccion);
             return transaccion;
@@ -91,6 +112,11 @@ namespace JevoGastosCore.ModelView
         private Transaccion Update(Transaccion transaccion)
         {
             Context.Transacciones.Update(transaccion);
+            if (!(items is null))
+            {
+                items.Remove(transaccion);
+                items.Add(transaccion);
+            }
             Context.SaveChanges();
             UpdateTotal(transaccion);
             return transaccion;
@@ -98,10 +124,9 @@ namespace JevoGastosCore.ModelView
 
         private Transaccion UpdateTotal(Transaccion transaccion)
         {
-            EtiquetaDAO.UpdateTotal(transaccion.Origen, Context);
-            EtiquetaDAO.UpdateTotal(transaccion.Destino, Context);
+            EtiquetaDAO.UpdateTotal(transaccion.Origen, Container);
+            EtiquetaDAO.UpdateTotal(transaccion.Destino, Container);
             return transaccion;
         }
-
     }
 }

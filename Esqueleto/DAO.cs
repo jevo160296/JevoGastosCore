@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace JevoGastosCore.Esqueleto
 {
@@ -16,9 +17,14 @@ namespace JevoGastosCore.Esqueleto
                 return Container.Context;
             }
         }
-        public class DAOList : List<T>
+        protected DAOList items;
+        public abstract DAOList Items { get; }
+        public bool ItemsLoaded => !(items is null);
+        
+        public class DAOList : ObservableCollection<T>
         {
             public DAOList(IEnumerable<T> items) : base(items) { }
         }
+        
     }
 }
