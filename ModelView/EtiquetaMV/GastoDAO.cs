@@ -33,6 +33,10 @@ namespace JevoGastosCore.ModelView.EtiquetaMV
             {
                 Items.Add(added);
             }
+            if (Container.EtiquetaDAO.ItemsLoaded)
+            {
+                Container.EtiquetaDAO.Items.Add(added);
+            }
             Context.SaveChanges();
             return added;
         }
