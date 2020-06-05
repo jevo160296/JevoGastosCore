@@ -1,4 +1,6 @@
 ﻿using JevoGastosCore.Model;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -6,14 +8,29 @@ namespace JevoGastosCore.ModelView
 {
     public class EtiquetaDAO : JevoGastosDAO<Etiqueta>
     {
-        public override DAOList Items => Get<Etiqueta>();
+        public override DAOList Items
+        {
+            get
+            {
+                if (items is null)
+                {
+                    items = new DAOList(Get<Etiqueta>());
+                }
+                return items;
+            }
+        }
 
         public EtiquetaDAO(GastosContainer gastosContainer) : base(gastosContainer) { }
 
-        public DAOList Get<T>()
+        public List<T> Get<T>()
             where T : Etiqueta
         {
-            return new DAOList(Context.Etiquetas.OfType<T>().ToList());
+            var loadingEtiquetas = Context.Etiquetas.OfType<T>().ToList();
+            foreach (var etiqueta in loadingEtiquetas)
+            {
+                UpdateTotal(etiqueta, Container);
+            }
+            return loadingEtiquetas;
         }
         public static void UpdateTotal(Etiqueta etiqueta, GastosContainer container)
         {
@@ -25,32 +42,43 @@ namespace JevoGastosCore.ModelView
         public static Etiqueta Update(Etiqueta etiqueta, GastosContainer container)
         {
             container.Context.Etiquetas.Update(etiqueta);
+            container.SaveChanges();
+            int index;
             if (container.EtiquetaDAO.ItemsLoaded)
             {
+                index = container.EtiquetaDAO.Items.IndexOf(etiqueta);
                 container.EtiquetaDAO.Items.Remove(etiqueta);
-                container.EtiquetaDAO.Items.Add(etiqueta);
+                container.EtiquetaDAO.Items.Insert(index,etiqueta);
             }
             if (etiqueta is Cuenta & container.CuentaDAO.ItemsLoaded)
             {
+                index = container.CuentaDAO.Items.IndexOf((Cuenta)etiqueta);
                 container.CuentaDAO.Items.Remove((Cuenta)etiqueta);
-                container.CuentaDAO.Items.Add((Cuenta)etiqueta);
+                container.CuentaDAO.Items.Insert(index,(Cuenta)etiqueta);
             }
             else if (etiqueta is Ingreso & container.IngresoDAO.ItemsLoaded)
             {
+                index = container.IngresoDAO.Items.IndexOf((Ingreso)etiqueta);
                 container.IngresoDAO.Items.Remove((Ingreso)etiqueta);
-                container.IngresoDAO.Items.Add((Ingreso)etiqueta);
+                container.IngresoDAO.Items.Insert(index,(Ingreso)etiqueta);
             }
             else if (etiqueta is Gasto & container.GastoDAO.ItemsLoaded)
             {
+                index = container.GastoDAO.Items.IndexOf((Gasto)etiqueta);
                 container.GastoDAO.Items.Remove((Gasto)etiqueta);
-                container.GastoDAO.Items.Add((Gasto)etiqueta);
+                container.GastoDAO.Items.Insert(index,(Gasto)etiqueta);
             }
-            container.Context.SaveChanges();
             return etiqueta;
         }
         public static Etiqueta Delete(Etiqueta etiqueta, GastosContainer container)
         {
+            //Se revisa si la etiqueta tiene Transacciones relacionadas
+            if (etiqueta.TransaccionesDestino?.Count>0 | etiqueta.TransaccionesOrigen?.Count>0)
+            {
+                throw new System.Exception("No se puede eliminar la etiqueta, tiene transacciones relacionadas.");
+            }
             container.Context.Etiquetas.Remove(etiqueta);
+            container.Context.SaveChanges();
             if (container.EtiquetaDAO.ItemsLoaded)
             {
                 container.EtiquetaDAO.Items.Remove(etiqueta);
@@ -67,7 +95,6 @@ namespace JevoGastosCore.ModelView
             {
                 container.GastoDAO.Items.Remove((Gasto)etiqueta);
             }
-            container.Context.SaveChanges();
             return etiqueta;
         }
     }

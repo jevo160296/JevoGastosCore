@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace JevoGastosCore.Model
 {
@@ -10,8 +11,8 @@ namespace JevoGastosCore.Model
         public int Id { get; set; }
         public string Name { get; set; }
 
-        public List<Transaccion> TransaccionesOrigen { get; set; }
-        public List<Transaccion> TransaccionesDestino { get; set; }
+        public ObservableCollection<Transaccion> TransaccionesOrigen { get; set; }
+        public ObservableCollection<Transaccion> TransaccionesDestino { get; set; }
 
         public double Total { get; set; }
 
@@ -30,7 +31,7 @@ namespace JevoGastosCore.Model
         }
         public override string ToString()
         {
-            return $"{Name}";
+            return $"{Name}, {Total}";
         }
         
     }

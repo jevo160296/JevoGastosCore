@@ -17,6 +17,10 @@ namespace JevoGastosCore.Model
         public double Valor { get; set; }
         public string Descripcion { get; set; }
 
+        public override string ToString()
+        {
+            return $"{Valor} Desde {Origen.Name} hasta {Destino.Name}";
+        }
         public override bool Equals(object obj)
         {
             Transaccion casted=obj as Transaccion;

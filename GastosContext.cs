@@ -46,14 +46,15 @@ namespace JevoGastosCore
                 .HasValue<Ingreso>("Ingreso")
                 .HasValue<Cuenta>("Cuenta")
                 .HasValue<Gasto>("Gasto");
-
             //Transaccion
             modelBuilder.Entity<Transaccion>()
                 .HasOne(p => p.Origen)
-                .WithMany(p => p.TransaccionesOrigen);
+                .WithMany(p => p.TransaccionesOrigen)
+                .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Transaccion>()
                 .HasOne(p => p.Destino)
-                .WithMany(p => p.TransaccionesDestino);
+                .WithMany(p => p.TransaccionesDestino)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -30,7 +30,6 @@ namespace JevoGastosCore.ModelView
         public Transaccion Entrada(Ingreso origen, Cuenta destino, double valor, string descripcion, DateTime? fecha = null)
         {
             return Add(origen, destino, valor, descripcion, fecha);
-
         }
         public Transaccion Movimiento(Cuenta origen, Cuenta destino, double valor, string descripcion, DateTime? fecha = null)
         {
@@ -49,11 +48,11 @@ namespace JevoGastosCore.ModelView
         public Transaccion Remove(Transaccion transaccion)
         {
             this.Context.Transacciones.Remove(transaccion);
+            Context.SaveChanges();
             if (!(items is null))
             {
                 Items.Remove(transaccion);
             }
-            Context.SaveChanges();
             UpdateTotal(transaccion);
             return transaccion;
         }
@@ -101,23 +100,25 @@ namespace JevoGastosCore.ModelView
         private Transaccion Add(Transaccion transaccion)
         {
             this.Context.Transacciones.Add(transaccion);
+            Context.SaveChanges();
             if (!(items is null))
             {
                 Items.Add(transaccion);
             }
-            Context.SaveChanges();
             UpdateTotal(transaccion);
             return transaccion;
         }
         private Transaccion Update(Transaccion transaccion)
         {
+            int index;
             Context.Transacciones.Update(transaccion);
+            Context.SaveChanges();
             if (!(items is null))
             {
+                index = items.IndexOf(transaccion);
                 items.Remove(transaccion);
-                items.Add(transaccion);
+                items.Insert(index,transaccion);
             }
-            Context.SaveChanges();
             UpdateTotal(transaccion);
             return transaccion;
         }

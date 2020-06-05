@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JevoGastosCore.Migrations
 {
     [DbContext(typeof(GastosContext))]
-    [Migration("20200603220822_Inicial")]
+    [Migration("20200604204517_Inicial")]
     partial class Inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -100,13 +100,13 @@ namespace JevoGastosCore.Migrations
                     b.HasOne("JevoGastosCore.Model.Etiqueta", "Destino")
                         .WithMany("TransaccionesDestino")
                         .HasForeignKey("DestinoId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("JevoGastosCore.Model.Etiqueta", "Origen")
                         .WithMany("TransaccionesOrigen")
                         .HasForeignKey("OrigenId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

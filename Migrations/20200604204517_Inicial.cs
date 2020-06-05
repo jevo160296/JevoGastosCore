@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace JevoGastosCore.Migrations
 {
@@ -42,13 +42,13 @@ namespace JevoGastosCore.Migrations
                         column: x => x.DestinoId,
                         principalTable: "Etiquetas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Transacciones_Etiquetas_OrigenId",
                         column: x => x.OrigenId,
                         principalTable: "Etiquetas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(

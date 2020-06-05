@@ -5,7 +5,6 @@ namespace JevoGastosCore.ModelView.EtiquetaMV
 {
     public class CuentaDAO : JevoGastosDAO<Cuenta>
     {
-        private new DAOList items = null;
         public override DAOList Items
         {
             get
@@ -23,13 +22,14 @@ namespace JevoGastosCore.ModelView.EtiquetaMV
 
         public DAOList Get()
         {
-            return new DAOList(Context.Cuentas.ToList());
+            return new DAOList(Container.EtiquetaDAO.Get<Cuenta>());
         }
 
         public Cuenta Add(string name)
         {
             Cuenta added = new Cuenta() { Name = name };
             Container.Context.Cuentas.Add(added);
+            Context.SaveChanges();
             if (ItemsLoaded)
             {
                 Items.Add(added);
@@ -38,7 +38,6 @@ namespace JevoGastosCore.ModelView.EtiquetaMV
             {
                 Container.EtiquetaDAO.Items.Add(added);
             }
-            Context.SaveChanges();
             return added;
         }
     }

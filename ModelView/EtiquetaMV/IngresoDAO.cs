@@ -7,7 +7,6 @@ namespace JevoGastosCore.ModelView.EtiquetaMV
     {
         public IngresoDAO(GastosContainer gastosContainer) : base(gastosContainer) { }
 
-        private new DAOList items = null;
         public override DAOList Items
         {
             get
@@ -22,14 +21,15 @@ namespace JevoGastosCore.ModelView.EtiquetaMV
 
         public DAOList Get()
         {
-            return new DAOList(Context.Ingresos.ToList());
+            return new DAOList(Container.EtiquetaDAO.Get<Ingreso>());
         }
 
         public Ingreso Add(string name)
         {
             Ingreso added = new Ingreso() { Name = name };
             Context.Ingresos.Add(added);
-            if (ItemsLoaded)
+            Context.SaveChanges();
+            if (this.ItemsLoaded)
             {
                 Items.Add(added);
             }
@@ -37,7 +37,6 @@ namespace JevoGastosCore.ModelView.EtiquetaMV
             {
                 Container.EtiquetaDAO.Items.Add(added);
             }
-            Context.SaveChanges();
             return added;
         }
     }
