@@ -20,11 +20,11 @@ namespace JevoGastosCore.Esqueleto
         protected DAOList items;
         public abstract DAOList Items { get; }
         public bool ItemsLoaded => !(items is null);
-        
+
         public class DAOList : ObservableCollection<T>
         {
             public DAOList(IEnumerable<T> items) : base(items) { }
         }
-        
+
     }
 }

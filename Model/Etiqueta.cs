@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 
 namespace JevoGastosCore.Model
 {
@@ -33,6 +32,6 @@ namespace JevoGastosCore.Model
         {
             return $"{Name}, {Total}";
         }
-        
+
     }
 }

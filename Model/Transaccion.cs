@@ -23,7 +23,7 @@ namespace JevoGastosCore.Model
         }
         public override bool Equals(object obj)
         {
-            Transaccion casted=obj as Transaccion;
+            Transaccion casted = obj as Transaccion;
             if (casted is null)
             {
                 return false;

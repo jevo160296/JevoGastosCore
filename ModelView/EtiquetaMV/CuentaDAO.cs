@@ -1,5 +1,4 @@
 ﻿using JevoGastosCore.Model;
-using System.Linq;
 
 namespace JevoGastosCore.ModelView.EtiquetaMV
 {
@@ -28,17 +27,13 @@ namespace JevoGastosCore.ModelView.EtiquetaMV
         public Cuenta Add(string name)
         {
             Cuenta added = new Cuenta() { Name = name };
-            Container.Context.Cuentas.Add(added);
-            Context.SaveChanges();
-            if (ItemsLoaded)
-            {
-                Items.Add(added);
-            }
-            if (Container.EtiquetaDAO.ItemsLoaded)
-            {
-                Container.EtiquetaDAO.Items.Add(added);
-            }
+            EtiquetaDAO.Add(added, Container);
+            Container.SaveChanges();
             return added;
+        }
+        public Cuenta Remove(Cuenta etiqueta)
+        {
+            return (Cuenta)EtiquetaDAO.Delete(etiqueta, Container);
         }
     }
 }

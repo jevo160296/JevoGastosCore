@@ -117,7 +117,7 @@ namespace JevoGastosCore.ModelView
             {
                 index = items.IndexOf(transaccion);
                 items.Remove(transaccion);
-                items.Insert(index,transaccion);
+                items.Insert(index, transaccion);
             }
             UpdateTotal(transaccion);
             return transaccion;
