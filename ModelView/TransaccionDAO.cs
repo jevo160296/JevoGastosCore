@@ -1,5 +1,6 @@
 ﻿using JevoGastosCore.Model;
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace JevoGastosCore.ModelView
@@ -8,8 +9,7 @@ namespace JevoGastosCore.ModelView
     {
         public TransaccionDAO(GastosContainer gastosContainer) : base(gastosContainer) { }
 
-        private new DAOList items = null;
-        public override DAOList Items
+        public override ObservableCollection<Transaccion> Items
         {
             get
             {
@@ -40,26 +40,11 @@ namespace JevoGastosCore.ModelView
             return Add(origen, destino, valor, descripcion, fecha);
         }
 
-        public Transaccion Actualizar(Transaccion transaccion)
-        {
-            return Update(transaccion);
-        }
 
-        public Transaccion Remove(Transaccion transaccion)
+        public ObservableCollection<Transaccion> Get()
         {
-            this.Context.Transacciones.Remove(transaccion);
-            Context.SaveChanges();
-            if (!(items is null))
-            {
-                Items.Remove(transaccion);
-            }
-            UpdateTotal(transaccion);
-            return transaccion;
-        }
-
-        public DAOList Get()
-        {
-            return new DAOList(Context.Transacciones.ToList());
+            var load = Context.Transacciones.ToList();
+            return Context.Transacciones.Local.ToObservableCollection();
         }
 
         private Transaccion Add<O, D>(O origen, D destino, double valor, string descripcion)
@@ -99,27 +84,27 @@ namespace JevoGastosCore.ModelView
 
         private Transaccion Add(Transaccion transaccion)
         {
-            this.Context.Transacciones.Add(transaccion);
-            Context.SaveChanges();
-            if (!(items is null))
+            this.Container.TransaccionDAO.Items.Add(transaccion);
+            if (Container.StayInSyncWithDisc)
             {
-                Items.Add(transaccion);
+                Context.SaveChanges();
             }
             UpdateTotal(transaccion);
             return transaccion;
         }
-        private Transaccion Update(Transaccion transaccion)
+        public Transaccion Remove(Transaccion transaccion)
         {
-            int index;
-            Context.Transacciones.Update(transaccion);
-            Context.SaveChanges();
-            if (!(items is null))
-            {
-                index = items.IndexOf(transaccion);
-                items.Remove(transaccion);
-                items.Insert(index, transaccion);
-            }
+            Container.TransaccionDAO.Items.Remove(transaccion);
             UpdateTotal(transaccion);
+            //Actualizando propiedades de navegacion
+            transaccion.Origen?.TransaccionesDestino?.Remove(transaccion);
+            transaccion.Origen?.TransaccionesOrigen?.Remove(transaccion);
+            transaccion.Destino?.TransaccionesDestino?.Remove(transaccion);
+            transaccion.Origen?.TransaccionesOrigen?.Remove(transaccion);
+            if (Container.StayInSyncWithDisc)
+            {
+                Context.SaveChanges();
+            }
             return transaccion;
         }
 

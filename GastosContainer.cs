@@ -11,6 +11,7 @@ namespace JevoGastosCore
         private CuentaDAO cuentaDao;
         private GastoDAO gastoDao;
         private TransaccionDAO transaccionDao;
+        private bool stayInSyncWithDisc;
 
         public EtiquetaDAO EtiquetaDAO
         {
@@ -67,10 +68,12 @@ namespace JevoGastosCore
                 return transaccionDao;
             }
         }
+        public bool StayInSyncWithDisc { get => stayInSyncWithDisc; }
 
-        public GastosContainer(string folderpath)
+        public GastosContainer(string folderpath,bool stayInSyncWithDisc=true)
         {
             this.Context = new GastosContext(folderpath);
+            this.stayInSyncWithDisc = stayInSyncWithDisc;
         }
         public void SaveChanges()
         {

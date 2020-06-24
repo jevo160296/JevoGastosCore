@@ -17,14 +17,8 @@ namespace JevoGastosCore.Esqueleto
                 return Container.Context;
             }
         }
-        protected DAOList items;
-        public abstract DAOList Items { get; }
+        protected ObservableCollection<T> items;
+        public abstract ObservableCollection<T> Items { get; }
         public bool ItemsLoaded => !(items is null);
-
-        public class DAOList : ObservableCollection<T>
-        {
-            public DAOList(IEnumerable<T> items) : base(items) { }
-        }
-
     }
 }

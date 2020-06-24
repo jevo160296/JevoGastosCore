@@ -55,6 +55,7 @@ namespace JevoGastosCore
                 .HasOne(p => p.Destino)
                 .WithMany(p => p.TransaccionesDestino)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
         }
     }
 }

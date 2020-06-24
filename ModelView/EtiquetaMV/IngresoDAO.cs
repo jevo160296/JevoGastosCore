@@ -1,4 +1,5 @@
 ﻿using JevoGastosCore.Model;
+using System.Collections.ObjectModel;
 
 namespace JevoGastosCore.ModelView.EtiquetaMV
 {
@@ -6,7 +7,7 @@ namespace JevoGastosCore.ModelView.EtiquetaMV
     {
         public IngresoDAO(GastosContainer gastosContainer) : base(gastosContainer) { }
 
-        public override DAOList Items
+        public override ObservableCollection<Ingreso> Items
         {
             get
             {
@@ -18,16 +19,19 @@ namespace JevoGastosCore.ModelView.EtiquetaMV
             }
         }
 
-        public DAOList Get()
+        public ObservableCollection<Ingreso> Get()
         {
-            return new DAOList(Container.EtiquetaDAO.Get<Ingreso>());
+            return Container.EtiquetaDAO.GetIngresos();
         }
 
         public Ingreso Add(string name)
         {
             Ingreso added = new Ingreso() { Name = name };
             EtiquetaDAO.Add(added, Container);
-            Context.SaveChanges();
+            if (Container.StayInSyncWithDisc)
+            {
+                Context.SaveChanges();
+            }
             return added;
         }
         public Ingreso Remove(Ingreso etiqueta)

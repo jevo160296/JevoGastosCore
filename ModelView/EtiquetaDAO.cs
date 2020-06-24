@@ -1,18 +1,19 @@
 ﻿using JevoGastosCore.Model;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace JevoGastosCore.ModelView
 {
     public class EtiquetaDAO : JevoGastosDAO<Etiqueta>
     {
-        public override DAOList Items
+        public override ObservableCollection<Etiqueta> Items
         {
             get
             {
                 if (items is null)
                 {
-                    items = new DAOList(Get<Etiqueta>());
+                    items = Get();
                 }
                 return items;
             }
@@ -20,26 +21,46 @@ namespace JevoGastosCore.ModelView
 
         public EtiquetaDAO(GastosContainer gastosContainer) : base(gastosContainer) { }
 
-        public List<T> Get<T>()
-            where T : Etiqueta
+        public ObservableCollection<Etiqueta> Get()
         {
-            var loadingEtiquetas = Context.Etiquetas.OfType<T>().ToList();
+            var load = Context.Etiquetas.ToList();
+            ObservableCollection<Etiqueta> loadingEtiquetas = Context.Etiquetas.Local.ToObservableCollection();
+            UpdateTotal(loadingEtiquetas, Container);
+            return loadingEtiquetas;
+        }
+        public ObservableCollection<Ingreso> GetIngresos()
+        {
+            var load = Context.Ingresos.ToList();
+            ObservableCollection<Ingreso> loadingEtiquetas = Context.Ingresos.Local.ToObservableCollection();
+            UpdateTotal(loadingEtiquetas, Container);
+            return loadingEtiquetas;
+        }
+        public ObservableCollection<Cuenta> GetCuentas()
+        {
+            var load = Context.Cuentas.ToList();
+            ObservableCollection<Cuenta> loadingEtiquetas = Context.Cuentas.Local.ToObservableCollection();
+            UpdateTotal(loadingEtiquetas, Container);
+            return loadingEtiquetas;
+        }
+        public ObservableCollection<Gasto> GetGastos()
+        {
+            var load = Context.Gastos.ToList();
+            ObservableCollection<Gasto> loadingEtiquetas = Context.Gastos.Local.ToObservableCollection();
             UpdateTotal(loadingEtiquetas, Container);
             return loadingEtiquetas;
         }
         public static void UpdateTotal(Etiqueta etiqueta, GastosContainer container)
         {
             etiqueta.Total =
-                container.Context.Transacciones.Where(p => p.DestinoId == etiqueta.Id).Sum(p => p.Valor) -
-                container.Context.Transacciones.Where(p => p.OrigenId == etiqueta.Id).Sum(p => p.Valor);
-            EtiquetaDAO.Update(etiqueta, container);
+                container.TransaccionDAO.Items.Where(p => p.Destino == etiqueta).Sum(p => p.Valor) -
+                container.TransaccionDAO.Items.Where(p => p.Origen == etiqueta).Sum(p => p.Valor);
         }
         public static void UpdateTotal<T>(IEnumerable<T> etiquetas,GastosContainer container)
             where T:Etiqueta
         {
             List<int> ids = (from etiqueta in etiquetas
                              select etiqueta.Id).ToList();
-            var transacciones = (from transaccion in container.Context.Transacciones
+            var transacciones = (from transaccion in container.TransaccionDAO.Items
                                 select new { origen = transaccion.OrigenId, destino = transaccion.DestinoId, valor = transaccion.Valor })
                                 .ToList();
             foreach (T etiqueta in etiquetas)
@@ -48,42 +69,6 @@ namespace JevoGastosCore.ModelView
                     transacciones.Where(p => p.destino == etiqueta.Id).Sum(p => p.valor) -
                     transacciones.Where(p => p.origen == etiqueta.Id).Sum(p => p.valor);
             }
-            EtiquetaDAO.Update(etiquetas, container);
-        }
-        private static void LazyUpdate(Etiqueta etiqueta,GastosContainer container)
-        {
-            container.Context.Etiquetas.Update(etiqueta);
-            int index;
-            if (container.EtiquetaDAO.ItemsLoaded)
-            {
-                index = container.EtiquetaDAO.Items.IndexOf(etiqueta);
-                container.EtiquetaDAO.Items.Remove(etiqueta);
-                container.EtiquetaDAO.Items.Insert(index, etiqueta);
-            }
-            if (etiqueta is Cuenta & container.CuentaDAO.ItemsLoaded)
-            {
-                index = container.CuentaDAO.Items.IndexOf((Cuenta)etiqueta);
-                container.CuentaDAO.Items.Remove((Cuenta)etiqueta);
-                container.CuentaDAO.Items.Insert(index, (Cuenta)etiqueta);
-            }
-            else if (etiqueta is Ingreso & container.IngresoDAO.ItemsLoaded)
-            {
-                index = container.IngresoDAO.Items.IndexOf((Ingreso)etiqueta);
-                container.IngresoDAO.Items.Remove((Ingreso)etiqueta);
-                container.IngresoDAO.Items.Insert(index, (Ingreso)etiqueta);
-            }
-            else if (etiqueta is Gasto & container.GastoDAO.ItemsLoaded)
-            {
-                index = container.GastoDAO.Items.IndexOf((Gasto)etiqueta);
-                container.GastoDAO.Items.Remove((Gasto)etiqueta);
-                container.GastoDAO.Items.Insert(index, (Gasto)etiqueta);
-            }
-        }
-        public static Etiqueta Update(Etiqueta etiqueta, GastosContainer container)
-        {
-            LazyUpdate(etiqueta, container);
-            container.SaveChanges();
-            return etiqueta;
         }
         public static Etiqueta Delete(Etiqueta etiqueta, GastosContainer container)
         {
@@ -92,23 +77,10 @@ namespace JevoGastosCore.ModelView
             {
                 throw new System.Exception("No se puede eliminar la etiqueta, tiene transacciones relacionadas.");
             }
-            container.Context.Etiquetas.Remove(etiqueta);
-            container.Context.SaveChanges();
-            if (container.EtiquetaDAO.ItemsLoaded)
+            container.EtiquetaDAO.Items.Remove(etiqueta);
+            if (container.StayInSyncWithDisc)
             {
-                container.EtiquetaDAO.Items.Remove(etiqueta);
-            }
-            if (etiqueta is Cuenta & container.CuentaDAO.ItemsLoaded)
-            {
-                container.CuentaDAO.Items.Remove((Cuenta)etiqueta);
-            }
-            else if (etiqueta is Ingreso & container.IngresoDAO.ItemsLoaded)
-            {
-                container.IngresoDAO.Items.Remove((Ingreso)etiqueta);
-            }
-            else if (etiqueta is Gasto & container.GastoDAO.ItemsLoaded)
-            {
-                container.GastoDAO.Items.Remove((Gasto)etiqueta);
+                container.Context.SaveChanges();
             }
             return etiqueta;
         }
@@ -164,33 +136,8 @@ namespace JevoGastosCore.ModelView
             {
                 throw new System.Exception($"{type} ya existe");
             }
-            container.Context.Etiquetas.Add(etiqueta);
-            if (container.EtiquetaDAO.ItemsLoaded)
-            {
-                container.EtiquetaDAO.Items.Add(etiqueta);
-            }
-            if (etiqueta is Cuenta & container.CuentaDAO.ItemsLoaded)
-            {
-                container.CuentaDAO.Items.Add((Cuenta)etiqueta);
-            }
-            else if (etiqueta is Ingreso & container.IngresoDAO.ItemsLoaded)
-            {
-                container.IngresoDAO.Items.Add((Ingreso)etiqueta);
-            }
-            else if (etiqueta is Gasto & container.GastoDAO.ItemsLoaded)
-            {
-                container.GastoDAO.Items.Add((Gasto)etiqueta);
-            }
+            container.EtiquetaDAO.Items.Add(etiqueta);
             return etiqueta;
-        }
-        public static void Update<T>(IEnumerable<T> etiquetas,GastosContainer container)
-            where T:Etiqueta
-        {
-            foreach (T etiqueta in etiquetas)
-            {
-                LazyUpdate(etiqueta,container);
-            }
-            container.SaveChanges();
         }
         public static bool In<T>(IEnumerable<T> list, string name)
             where T : Etiqueta

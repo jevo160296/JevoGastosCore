@@ -1,10 +1,11 @@
 ﻿using JevoGastosCore.Model;
+using System.Collections.ObjectModel;
 
 namespace JevoGastosCore.ModelView.EtiquetaMV
 {
     public class CuentaDAO : JevoGastosDAO<Cuenta>
     {
-        public override DAOList Items
+        public override ObservableCollection<Cuenta> Items
         {
             get
             {
@@ -19,16 +20,19 @@ namespace JevoGastosCore.ModelView.EtiquetaMV
 
         public CuentaDAO(GastosContainer gastosContainer) : base(gastosContainer) { }
 
-        public DAOList Get()
+        public ObservableCollection<Cuenta> Get()
         {
-            return new DAOList(Container.EtiquetaDAO.Get<Cuenta>());
+            return Container.EtiquetaDAO.GetCuentas();
         }
 
         public Cuenta Add(string name)
         {
             Cuenta added = new Cuenta() { Name = name };
             EtiquetaDAO.Add(added, Container);
-            Container.SaveChanges();
+            if (Container.StayInSyncWithDisc)
+            {
+                Container.SaveChanges();
+            }
             return added;
         }
         public Cuenta Remove(Cuenta etiqueta)
