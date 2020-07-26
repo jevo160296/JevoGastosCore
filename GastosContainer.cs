@@ -1,6 +1,7 @@
 ﻿using JevoGastosCore.Esqueleto;
 using JevoGastosCore.ModelView;
 using JevoGastosCore.ModelView.EtiquetaMV;
+using Microsoft.EntityFrameworkCore;
 
 namespace JevoGastosCore
 {
@@ -78,6 +79,7 @@ namespace JevoGastosCore
         public void SaveChanges()
         {
             this.Context.SaveChanges();
+            this.Context.Database.ExecuteSqlRaw("VACUUM");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using JevoGastosCore.Model;
+using JevoGastosCore.ModelView.EtiquetaTypes;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -51,9 +52,13 @@ namespace JevoGastosCore.ModelView
         }
         public static void UpdateTotal(Etiqueta etiqueta, GastosContainer container)
         {
-            etiqueta.Total =
+            double total= 
                 container.TransaccionDAO.Items.Where(p => p.Destino == etiqueta).Sum(p => p.Valor) -
                 container.TransaccionDAO.Items.Where(p => p.Origen == etiqueta).Sum(p => p.Valor);
+            if (!(etiqueta.Total==total))
+            {
+                etiqueta.Total = total;
+            }
         }
         public static void UpdateTotal<T>(IEnumerable<T> etiquetas,GastosContainer container)
             where T:Etiqueta
@@ -65,9 +70,7 @@ namespace JevoGastosCore.ModelView
                                 .ToList();
             foreach (T etiqueta in etiquetas)
             {
-                etiqueta.Total=
-                    transacciones.Where(p => p.destino == etiqueta.Id).Sum(p => p.valor) -
-                    transacciones.Where(p => p.origen == etiqueta.Id).Sum(p => p.valor);
+                UpdateTotal(etiqueta, container);
             }
         }
         public static Etiqueta Delete(Etiqueta etiqueta, GastosContainer container)
@@ -139,6 +142,41 @@ namespace JevoGastosCore.ModelView
             container.EtiquetaDAO.Items.Add(etiqueta);
             return etiqueta;
         }
+        public static bool Clear(TipoEtiqueta tipo,GastosContainer container)
+        {
+            List<Etiqueta> deletingEtiquetas=new List<Etiqueta>();
+            bool cleared=false;
+            switch (tipo)
+            {
+                case TipoEtiqueta.Ingreso:
+                    deletingEtiquetas = new List<Etiqueta>(container.IngresoDAO.Items);
+                    if (IsSafeToDelete(deletingEtiquetas, container))
+                    {
+                        container.IngresoDAO.Items.Clear();
+                        cleared = true;
+                    }
+                    break;
+                case TipoEtiqueta.Cuenta:
+                    deletingEtiquetas = new List<Etiqueta>(container.CuentaDAO.Items);
+                    if (IsSafeToDelete(deletingEtiquetas, container))
+                    {
+                        container.CuentaDAO.Items.Clear();
+                        cleared = true;
+                    }
+                    break;
+                case TipoEtiqueta.Gasto:
+                    deletingEtiquetas = new List<Etiqueta>(container.GastoDAO.Items);
+                    if (IsSafeToDelete(deletingEtiquetas, container))
+                    {
+                        container.GastoDAO.Items.Clear();
+                        cleared = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return cleared;
+        }
         public static bool In<T>(IEnumerable<T> list, string name)
             where T : Etiqueta
         {
@@ -152,6 +190,20 @@ namespace JevoGastosCore.ModelView
                 }
             }
             return respuesta;
+        }
+        private static bool IsSafeToDelete(Etiqueta etiqueta, GastosContainer container)
+        {
+            return etiqueta.TransaccionesDestino.Count == 0 && etiqueta.TransaccionesOrigen.Count == 0;
+        }
+        private static bool IsSafeToDelete(IList<Etiqueta> etiquetas,GastosContainer container)
+        {
+            var destinoTrans = from transaccion in container.TransaccionDAO.Items
+                               join etiqueta in etiquetas on transaccion.DestinoId equals etiqueta.Id
+                               select new { transaccion.Id };
+            var origenTrans = from transaccion in container.TransaccionDAO.Items
+                               join etiqueta in etiquetas on transaccion.OrigenId equals etiqueta.Id
+                               select new { transaccion.Id };
+            return destinoTrans.Count() == 0 && origenTrans.Count() == 0;
         }
     }
 }

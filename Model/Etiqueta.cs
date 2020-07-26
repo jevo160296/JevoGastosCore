@@ -13,11 +13,16 @@ namespace JevoGastosCore.Model
         private string name;
 
         public int Id { get; set; }
-        public string Name { get=>name;
+        public string Name 
+        { 
+            get=>name;
             set 
             {
-                name = value;
-                OnPropertyChanged();
+                if (!(name==value))
+                {
+                    name = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -27,8 +32,11 @@ namespace JevoGastosCore.Model
         public double Total { get=>total; 
             set 
             {
-                total = value;
-                this.OnPropertyChanged();
+                if (!(total==value))
+                {
+                    total = value;
+                    this.OnPropertyChanged();
+                }
             } 
         }
 

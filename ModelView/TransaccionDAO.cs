@@ -1,5 +1,7 @@
 ﻿using JevoGastosCore.Model;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -106,6 +108,31 @@ namespace JevoGastosCore.ModelView
                 Context.SaveChanges();
             }
             return transaccion;
+        }
+        public void Remove(IList<Transaccion> transacciones)
+        {
+            List<Transaccion> helper = new List<Transaccion>(transacciones);
+            foreach (Transaccion transaccion in helper)
+            {
+                Remove(transaccion);
+            }
+        }
+        public void Clear()
+        {
+            Container.TransaccionDAO.Items.Clear();
+            EtiquetaDAO.UpdateTotal(Container.EtiquetaDAO.Items,Container);
+            //Actualizando propiedades de navegacion
+            foreach (Etiqueta etiqueta in Container.EtiquetaDAO.Items)
+            {
+                while (etiqueta.TransaccionesOrigen.Count>0)
+                {
+                    etiqueta.TransaccionesOrigen.RemoveAt(0);
+                }
+                while (etiqueta.TransaccionesDestino.Count>0)
+                {
+                    etiqueta.TransaccionesDestino.RemoveAt(0);
+                }
+            }
         }
 
         private Transaccion UpdateTotal(Transaccion transaccion)
