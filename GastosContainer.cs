@@ -11,6 +11,7 @@ namespace JevoGastosCore
         private IngresoDAO ingresoDao;
         private CuentaDAO cuentaDao;
         private GastoDAO gastoDao;
+        private CreditoDAO creditoDao;
         private TransaccionDAO transaccionDao;
         private bool stayInSyncWithDisc;
 
@@ -56,6 +57,17 @@ namespace JevoGastosCore
                     gastoDao = new GastoDAO(this);
                 }
                 return gastoDao;
+            }
+        }
+        public CreditoDAO CreditoDAO
+        {
+            get
+            {
+                if (creditoDao is null)
+                {
+                    creditoDao = new CreditoDAO(this);
+                }
+                return creditoDao;
             }
         }
         public TransaccionDAO TransaccionDAO

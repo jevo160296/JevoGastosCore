@@ -50,6 +50,13 @@ namespace JevoGastosCore.ModelView
             UpdateTotal(loadingEtiquetas, Container);
             return loadingEtiquetas;
         }
+        public ObservableCollection<Credito> GetCreditos()
+        {
+            var load = Context.Creditos.ToList();
+            ObservableCollection<Credito> loadingEtiquetas = Context.Creditos.Local.ToObservableCollection();
+            UpdateTotal(loadingEtiquetas, Container);
+            return loadingEtiquetas;
+        }
         public static void UpdateTotal(Etiqueta etiqueta, GastosContainer container)
         {
             double total= 
@@ -135,6 +142,20 @@ namespace JevoGastosCore.ModelView
                 repetido = EtiquetaDAO.In<Gasto>(cs, name);
                 type = "El gasto";
             }
+            else if (etiqueta is Credito)
+            {
+                List<Credito> cs;
+                if (container.CreditoDAO.ItemsLoaded)
+                {
+                    cs = new List<Credito>(container.CreditoDAO.Items);
+                }
+                else
+                {
+                    cs = container.Context.Creditos.ToList();
+                }
+                repetido = EtiquetaDAO.In<Credito>(cs, name);
+                type = "El credito";
+            }
             if (repetido)
             {
                 throw new System.Exception($"{type} ya existe");
@@ -169,6 +190,14 @@ namespace JevoGastosCore.ModelView
                     if (IsSafeToDelete(deletingEtiquetas, container))
                     {
                         container.GastoDAO.Items.Clear();
+                        cleared = true;
+                    }
+                    break;
+                case TipoEtiqueta.Credito:
+                    deletingEtiquetas = new List<Etiqueta>(container.CreditoDAO.Items);
+                    if (IsSafeToDelete(deletingEtiquetas, container))
+                    {
+                        container.CreditoDAO.Items.Clear();
                         cleared = true;
                     }
                     break;

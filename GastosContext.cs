@@ -11,6 +11,7 @@ namespace JevoGastosCore
         public DbSet<Ingreso> Ingresos { get; set; }
         public DbSet<Cuenta> Cuentas { get; set; }
         public DbSet<Gasto> Gastos { get; set; }
+        public DbSet<Credito> Creditos { get; set; }
         public DbSet<Transaccion> Transacciones { get; set; }
         #endregion
         #region Configuration
@@ -45,7 +46,8 @@ namespace JevoGastosCore
                 .HasDiscriminator<string>("Tipo")
                 .HasValue<Ingreso>("Ingreso")
                 .HasValue<Cuenta>("Cuenta")
-                .HasValue<Gasto>("Gasto");
+                .HasValue<Gasto>("Gasto")
+                .HasValue<Credito>("Credito");
             //Transaccion
             modelBuilder.Entity<Transaccion>()
                 .HasOne(p => p.Origen)

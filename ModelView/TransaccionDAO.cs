@@ -41,6 +41,14 @@ namespace JevoGastosCore.ModelView
         {
             return Add(origen, destino, valor, descripcion, fecha);
         }
+        public Transaccion Prestamo(Credito origen,Cuenta destino,double valor,string descripcion,DateTime? fecha = null)
+        {
+            return Add(origen, destino, valor, descripcion, fecha);
+        }
+        public Transaccion Pago(Cuenta origen, Credito destino, double valor, string descripcion, DateTime? fecha = null)
+        {
+            return Add(origen, destino, valor, descripcion, fecha);
+        }
 
 
         public ObservableCollection<Transaccion> Get()

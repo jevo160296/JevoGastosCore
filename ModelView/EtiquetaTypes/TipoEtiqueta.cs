@@ -4,6 +4,7 @@
     {
         Ingreso,
         Cuenta,
-        Gasto
+        Gasto,
+        Credito
     }
 }
