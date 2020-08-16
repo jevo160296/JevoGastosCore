@@ -13,6 +13,7 @@ namespace JevoGastosCore
         public DbSet<Gasto> Gastos { get; set; }
         public DbSet<Credito> Creditos { get; set; }
         public DbSet<Transaccion> Transacciones { get; set; }
+        public DbSet<Plan> Planes { get; set; }
         #endregion
         #region Configuration
         private static string dbname = "db.db";
@@ -57,6 +58,18 @@ namespace JevoGastosCore
                 .HasOne(p => p.Destino)
                 .WithMany(p => p.TransaccionesDestino)
                 .OnDelete(DeleteBehavior.Restrict);
+            //Plan
+            modelBuilder.Entity<Plan>()
+                .Property(p => p.Meta)
+                .HasDefaultValue(0);
+            modelBuilder.Entity<Plan>()
+                .Property(p => p.Tipo)
+                .IsRequired();
+            modelBuilder.Entity<Plan>()
+                .HasOne(p => p.Etiqueta)
+                .WithMany(p => p.Planes)
+                .OnDelete(DeleteBehavior.Restrict);
+            //General
             modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
         }
     }

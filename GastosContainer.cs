@@ -2,10 +2,12 @@
 using JevoGastosCore.ModelView;
 using JevoGastosCore.ModelView.EtiquetaMV;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace JevoGastosCore
 {
-    public class GastosContainer : Container<GastosContext>
+    public class GastosContainer : Container<GastosContext>,INotifyPropertyChanged
     {
         private EtiquetaDAO etiquetaDao;
         private IngresoDAO ingresoDao;
@@ -13,6 +15,8 @@ namespace JevoGastosCore
         private GastoDAO gastoDao;
         private CreditoDAO creditoDao;
         private TransaccionDAO transaccionDao;
+        private PlanDAO planDao;
+        private Medidas medidas;
         private bool stayInSyncWithDisc;
 
         public EtiquetaDAO EtiquetaDAO
@@ -22,6 +26,7 @@ namespace JevoGastosCore
                 if (etiquetaDao is null)
                 {
                     etiquetaDao = new EtiquetaDAO(this);
+                    etiquetaDao.PropertyChanged += Dao_PropertyChanged;
                 }
                 return etiquetaDao;
             }
@@ -33,6 +38,7 @@ namespace JevoGastosCore
                 if (ingresoDao is null)
                 {
                     ingresoDao = new IngresoDAO(this);
+                    ingresoDao.PropertyChanged += Dao_PropertyChanged;
                 }
                 return ingresoDao;
             }
@@ -44,6 +50,7 @@ namespace JevoGastosCore
                 if (cuentaDao is null)
                 {
                     cuentaDao = new CuentaDAO(this);
+                    cuentaDao.PropertyChanged += Dao_PropertyChanged;
                 }
                 return cuentaDao;
             }
@@ -55,6 +62,7 @@ namespace JevoGastosCore
                 if (gastoDao is null)
                 {
                     gastoDao = new GastoDAO(this);
+                    gastoDao.PropertyChanged += Dao_PropertyChanged;
                 }
                 return gastoDao;
             }
@@ -66,6 +74,7 @@ namespace JevoGastosCore
                 if (creditoDao is null)
                 {
                     creditoDao = new CreditoDAO(this);
+                    creditoDao.PropertyChanged += Dao_PropertyChanged;
                 }
                 return creditoDao;
             }
@@ -77,8 +86,32 @@ namespace JevoGastosCore
                 if (transaccionDao is null)
                 {
                     transaccionDao = new TransaccionDAO(this);
+                    transaccionDao.PropertyChanged += Dao_PropertyChanged;
                 }
                 return transaccionDao;
+            }
+        }
+        public PlanDAO PlanDAO
+        {
+            get
+            {
+                if (planDao is null)
+                {
+                    planDao = new PlanDAO(this);
+                    planDao.PropertyChanged += Dao_PropertyChanged;
+                }
+                return planDao;
+            }
+        }
+        public Medidas Medidas
+        {
+            get
+            {
+                if (medidas is null)
+                {
+                    medidas = new Medidas(this);
+                }
+                return medidas;
             }
         }
         public bool StayInSyncWithDisc { get => stayInSyncWithDisc; }
@@ -92,6 +125,17 @@ namespace JevoGastosCore
         {
             this.Context.SaveChanges();
             this.Context.Database.ExecuteSqlRaw("VACUUM");
+        }
+
+        private void Dao_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(e.PropertyName);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName]string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

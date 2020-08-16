@@ -1,15 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace JevoGastosCore.Esqueleto
 {
-    public abstract class DAO<T, DataContext, DataContainer>:INotifyPropertyChanged
-        where T : class
-        where DataContainer : Container<DataContext>
-        where DataContext : DbContext
+    public abstract class Vista<DataContext,DataContainer>:INotifyPropertyChanged
+        where DataContext:DbContext
+        where DataContainer:Container<DataContext>
     {
         protected DataContainer Container;
         protected DataContext Context
@@ -19,9 +19,11 @@ namespace JevoGastosCore.Esqueleto
                 return Container.Context;
             }
         }
-        protected ObservableCollection<T> items;
-        public abstract ObservableCollection<T> Items { get; }
-        public bool ItemsLoaded => !(items is null);
+
+        public Vista(DataContainer Container)
+        {
+            this.Container = Container;
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName]string name = null)

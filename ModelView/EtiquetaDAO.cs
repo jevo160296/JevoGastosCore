@@ -15,9 +15,32 @@ namespace JevoGastosCore.ModelView
                 if (items is null)
                 {
                     items = Get();
+                    items.CollectionChanged += Items_CollectionChanged;
+                    foreach (Etiqueta item in items)
+                    {
+                        item.PropertyChanged += Item_PropertyChanged;
+                    }
                 }
                 return items;
             }
+        }
+
+        private void Items_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                    foreach (Etiqueta item in e.NewItems)
+                    {
+                        item.PropertyChanged += Item_PropertyChanged;
+                    }
+                    break;
+            }
+        }
+
+        private void Item_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(e.PropertyName);
         }
 
         public EtiquetaDAO(GastosContainer gastosContainer) : base(gastosContainer) { }

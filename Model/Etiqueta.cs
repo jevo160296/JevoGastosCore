@@ -28,6 +28,7 @@ namespace JevoGastosCore.Model
 
         public ObservableCollection<Transaccion> TransaccionesOrigen { get; set; }
         public ObservableCollection<Transaccion> TransaccionesDestino { get; set; }
+        public ObservableCollection<Plan> Planes { get; set; }
 
         public double Total { get=>total; 
             set 
