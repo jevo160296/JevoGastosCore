@@ -3,7 +3,6 @@
     public enum TipoPlan
     {
         Diario,
-        Mensual,
-        Variable
+        Mensual
     }
 }

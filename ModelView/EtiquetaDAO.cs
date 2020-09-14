@@ -1,5 +1,5 @@
-﻿using JevoGastosCore.Model;
-using JevoGastosCore.ModelView.EtiquetaTypes;
+﻿using JevoGastosCore.Enums;
+using JevoGastosCore.Model;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -49,59 +49,31 @@ namespace JevoGastosCore.ModelView
         {
             var load = Context.Etiquetas.ToList();
             ObservableCollection<Etiqueta> loadingEtiquetas = Context.Etiquetas.Local.ToObservableCollection();
-            UpdateTotal(loadingEtiquetas, Container);
             return loadingEtiquetas;
         }
         public ObservableCollection<Ingreso> GetIngresos()
         {
             var load = Context.Ingresos.ToList();
             ObservableCollection<Ingreso> loadingEtiquetas = Context.Ingresos.Local.ToObservableCollection();
-            UpdateTotal(loadingEtiquetas, Container);
             return loadingEtiquetas;
         }
         public ObservableCollection<Cuenta> GetCuentas()
         {
             var load = Context.Cuentas.ToList();
             ObservableCollection<Cuenta> loadingEtiquetas = Context.Cuentas.Local.ToObservableCollection();
-            UpdateTotal(loadingEtiquetas, Container);
             return loadingEtiquetas;
         }
         public ObservableCollection<Gasto> GetGastos()
         {
             var load = Context.Gastos.ToList();
             ObservableCollection<Gasto> loadingEtiquetas = Context.Gastos.Local.ToObservableCollection();
-            UpdateTotal(loadingEtiquetas, Container);
             return loadingEtiquetas;
         }
         public ObservableCollection<Credito> GetCreditos()
         {
             var load = Context.Creditos.ToList();
             ObservableCollection<Credito> loadingEtiquetas = Context.Creditos.Local.ToObservableCollection();
-            UpdateTotal(loadingEtiquetas, Container);
             return loadingEtiquetas;
-        }
-        public static void UpdateTotal(Etiqueta etiqueta, GastosContainer container)
-        {
-            double total= 
-                container.TransaccionDAO.Items.Where(p => p.Destino == etiqueta).Sum(p => p.Valor) -
-                container.TransaccionDAO.Items.Where(p => p.Origen == etiqueta).Sum(p => p.Valor);
-            if (!(etiqueta.Total==total))
-            {
-                etiqueta.Total = total;
-            }
-        }
-        public static void UpdateTotal<T>(IEnumerable<T> etiquetas,GastosContainer container)
-            where T:Etiqueta
-        {
-            List<int> ids = (from etiqueta in etiquetas
-                             select etiqueta.Id).ToList();
-            var transacciones = (from transaccion in container.TransaccionDAO.Items
-                                select new { origen = transaccion.OrigenId, destino = transaccion.DestinoId, valor = transaccion.Valor })
-                                .ToList();
-            foreach (T etiqueta in etiquetas)
-            {
-                UpdateTotal(etiqueta, container);
-            }
         }
         public static Etiqueta Delete(Etiqueta etiqueta, GastosContainer container)
         {
@@ -243,9 +215,32 @@ namespace JevoGastosCore.ModelView
             }
             return respuesta;
         }
+        public static TipoEtiqueta Tipo(Etiqueta etiqueta)
+        {
+            if (etiqueta is Ingreso)
+            {
+                return TipoEtiqueta.Ingreso;
+            }
+            else if(etiqueta is Cuenta)
+            {
+                return TipoEtiqueta.Cuenta;
+            }
+            else if (etiqueta is Gasto)
+            {
+                return TipoEtiqueta.Gasto;
+            }
+            else if (etiqueta is Credito)
+            {
+                return TipoEtiqueta.Credito;
+            }
+            else
+            {
+                return TipoEtiqueta.Ingreso;
+            }
+        }
         private static bool IsSafeToDelete(Etiqueta etiqueta, GastosContainer container)
         {
-            return etiqueta.TransaccionesDestino.Count == 0 && etiqueta.TransaccionesOrigen.Count == 0;
+            return etiqueta.TransaccionesDestino.Count == 0 && etiqueta.TransaccionesOrigen.Count == 0 && etiqueta.Planes.Count == 0;
         }
         private static bool IsSafeToDelete(IList<Etiqueta> etiquetas,GastosContainer container)
         {
@@ -255,7 +250,10 @@ namespace JevoGastosCore.ModelView
             var origenTrans = from transaccion in container.TransaccionDAO.Items
                                join etiqueta in etiquetas on transaccion.OrigenId equals etiqueta.Id
                                select new { transaccion.Id };
-            return destinoTrans.Count() == 0 && origenTrans.Count() == 0;
+            var planes = from plan in container.PlanDAO.Items
+                         join etiqueta in etiquetas on plan.EtiquetaId equals etiqueta.Id
+                         select new { plan.Id };
+            return destinoTrans.Count() == 0 && origenTrans.Count() == 0 && planes.Count() == 0;
         }
     }
 }

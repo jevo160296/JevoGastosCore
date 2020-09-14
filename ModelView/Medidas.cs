@@ -1,4 +1,5 @@
 ﻿using JevoGastosCore.Esqueleto;
+using JevoGastosCore.Model;
 using System.Linq;
 
 namespace JevoGastosCore.ModelView
@@ -13,10 +14,9 @@ namespace JevoGastosCore.ModelView
             {
                 if (libre is null)
                 {
-                    libre =
-                        this.Container.CuentaDAO.Items.Sum(p => p.Total) -
-                        this.Container.PlanDAO.Items.Sum(p => p.Meta);
+                    libre =CalculateLibre();
                     this.Container.PropertyChanged += Container_PropertyChanged;
+                    this.Container.PlanDAO.Items.CollectionChanged += Items_CollectionChanged; ;
                 }
                 return libre;
             }
@@ -26,17 +26,27 @@ namespace JevoGastosCore.ModelView
                 this.OnPropertyChanged();
             }
         }
+
+        private void Items_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            UpdateLibre();
+        }
         private void Container_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             UpdateLibre();
         }
         private void UpdateLibre()
         {
-            Libre =
-                        this.Container.CuentaDAO.Items.Sum(p => p.Total) -
-                        this.Container.PlanDAO.Items.Sum(p => p.Meta);
+            Libre = CalculateLibre();
         }
-
+        private double CalculateLibre()
+        {
+            return 
+                this.Container.CuentaDAO.Items.Sum(p => p.Total) +
+                2 * this.Container.PlanDAO.Items.Where(p=>p.Etiqueta is Ingreso).Sum(p=>p.Falta) +
+                2 * this.Container.PlanDAO.Items.Where(p => p.Etiqueta is Cuenta).Sum(p => p.Falta) -
+                this.Container.PlanDAO.Items.Sum(p => p.Falta);
+        }
         public Medidas(GastosContainer container) : base(container)
         {
 

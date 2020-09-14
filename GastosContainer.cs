@@ -1,4 +1,5 @@
-﻿using JevoGastosCore.Esqueleto;
+﻿using JevoGastosCore.Clases;
+using JevoGastosCore.Esqueleto;
 using JevoGastosCore.ModelView;
 using JevoGastosCore.ModelView.EtiquetaMV;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ namespace JevoGastosCore
         private CreditoDAO creditoDao;
         private TransaccionDAO transaccionDao;
         private PlanDAO planDao;
+        private PayDaysDAO payDaysDao;
         private Medidas medidas;
         private bool stayInSyncWithDisc;
 
@@ -91,6 +93,18 @@ namespace JevoGastosCore
                 return transaccionDao;
             }
         }
+        public PayDaysDAO PayDaysDAO
+        {
+            get
+            {
+                if (payDaysDao is null)
+                {
+                    payDaysDao = new PayDaysDAO(this);
+                    payDaysDao.PropertyChanged += Dao_PropertyChanged;
+                }
+                return payDaysDao;
+            }
+        }
         public PlanDAO PlanDAO
         {
             get
@@ -114,7 +128,7 @@ namespace JevoGastosCore
                 return medidas;
             }
         }
-        public bool StayInSyncWithDisc { get => stayInSyncWithDisc; }
+        public bool StayInSyncWithDisc => stayInSyncWithDisc;
 
         public GastosContainer(string folderpath,bool stayInSyncWithDisc=true)
         {

@@ -1,4 +1,5 @@
-﻿using JevoGastosCore.Model;
+﻿using JevoGastosCore.Enums;
+using JevoGastosCore.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -56,6 +57,14 @@ namespace JevoGastosCore.ModelView
             var load = Context.Transacciones.ToList();
             return Context.Transacciones.Local.ToObservableCollection();
         }
+        public static TipoTransaccion Tipo(Transaccion transaccion)
+        {
+            TipoEtiqueta tipoEtiquetaOrigen, tipoEtiquetaDestino;
+            tipoEtiquetaOrigen = EtiquetaDAO.Tipo(transaccion.Origen);
+            tipoEtiquetaDestino = EtiquetaDAO.Tipo(transaccion.Destino);
+            TipoTransaccion tipo = (TipoTransaccion)(2 ^ (4 + (int)tipoEtiquetaOrigen) + 2 ^ (int)tipoEtiquetaDestino);
+            return tipo;
+        }
 
         private Transaccion Add<O, D>(O origen, D destino, double valor, string descripcion)
             where O : Etiqueta
@@ -99,13 +108,11 @@ namespace JevoGastosCore.ModelView
             {
                 Context.SaveChanges();
             }
-            UpdateTotal(transaccion);
             return transaccion;
         }
         public Transaccion Remove(Transaccion transaccion)
         {
             Container.TransaccionDAO.Items.Remove(transaccion);
-            UpdateTotal(transaccion);
             //Actualizando propiedades de navegacion
             transaccion.Origen?.TransaccionesDestino?.Remove(transaccion);
             transaccion.Origen?.TransaccionesOrigen?.Remove(transaccion);
@@ -128,7 +135,6 @@ namespace JevoGastosCore.ModelView
         public void Clear()
         {
             Container.TransaccionDAO.Items.Clear();
-            EtiquetaDAO.UpdateTotal(Container.EtiquetaDAO.Items,Container);
             //Actualizando propiedades de navegacion
             foreach (Etiqueta etiqueta in Container.EtiquetaDAO.Items)
             {
@@ -141,13 +147,6 @@ namespace JevoGastosCore.ModelView
                     etiqueta.TransaccionesDestino.RemoveAt(0);
                 }
             }
-        }
-
-        private Transaccion UpdateTotal(Transaccion transaccion)
-        {
-            EtiquetaDAO.UpdateTotal(transaccion.Origen, Container);
-            EtiquetaDAO.UpdateTotal(transaccion.Destino, Container);
-            return transaccion;
         }
     }
 }

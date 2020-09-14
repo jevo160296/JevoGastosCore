@@ -1,4 +1,4 @@
-﻿namespace JevoGastosCore.ModelView.EtiquetaTypes
+﻿namespace JevoGastosCore.Enums
 {
     public enum TipoEtiqueta
     {

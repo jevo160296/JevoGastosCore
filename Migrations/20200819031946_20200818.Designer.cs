@@ -3,14 +3,16 @@ using System;
 using JevoGastosCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace JevoGastosCore.Migrations
 {
     [DbContext(typeof(GastosContext))]
-    partial class GastosContextModelSnapshot : ModelSnapshot
+    [Migration("20200819031946_20200818")]
+    partial class _20200818
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,20 +42,6 @@ namespace JevoGastosCore.Migrations
                     b.ToTable("Etiquetas");
 
                     b.HasDiscriminator<string>("Tipo").HasValue("Etiqueta");
-                });
-
-            modelBuilder.Entity("JevoGastosCore.Model.PayDay", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Day")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PayDays");
                 });
 
             modelBuilder.Entity("JevoGastosCore.Model.Plan", b =>
