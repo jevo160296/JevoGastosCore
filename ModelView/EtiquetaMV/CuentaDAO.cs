@@ -25,19 +25,28 @@ namespace JevoGastosCore.ModelView.EtiquetaMV
             return Container.EtiquetaDAO.GetCuentas();
         }
 
+        public Cuenta Add(string name, bool esAhorro)
+        {
+            Cuenta added = new Cuenta() { Name = name, EsAhorro = esAhorro };
+            return Add(added);
+        }
         public Cuenta Add(string name)
         {
             Cuenta added = new Cuenta() { Name = name };
-            EtiquetaDAO.Add(added, Container);
-            if (Container.StayInSyncWithDisc)
-            {
-                Container.SaveChanges();
-            }
-            return added;
+            return Add(added);
         }
         public Cuenta Remove(Cuenta etiqueta)
         {
             return (Cuenta)EtiquetaDAO.Delete(etiqueta, Container);
+        }
+        private Cuenta Add(Cuenta cuenta)
+        {
+            EtiquetaDAO.Add(cuenta, Container);
+            if (Container.StayInSyncWithDisc)
+            {
+                Container.SaveChanges();
+            }
+            return cuenta;
         }
     }
 }

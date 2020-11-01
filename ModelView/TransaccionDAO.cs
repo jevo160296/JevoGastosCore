@@ -54,8 +54,10 @@ namespace JevoGastosCore.ModelView
 
         public ObservableCollection<Transaccion> Get()
         {
-            var load = Context.Transacciones.ToList();
-            return Context.Transacciones.Local.ToObservableCollection();
+            IQueryable<Transaccion> query = Context.Transacciones.OrderByDescending(p => p.Fecha);
+            Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Load<Transaccion>(query);
+            ObservableCollection<Transaccion> returnedData = Context.Transacciones.Local.ToObservableCollection();
+            return returnedData;
         }
         public static TipoTransaccion Tipo(Transaccion transaccion)
         {
@@ -103,7 +105,19 @@ namespace JevoGastosCore.ModelView
 
         private Transaccion Add(Transaccion transaccion)
         {
-            this.Container.TransaccionDAO.Items.Add(transaccion);
+            int index = 0;
+            while (index<Items.Count && transaccion.Fecha>Items[index].Fecha)
+            {
+                index++;
+            }
+            if (index==Items.Count)
+            {
+                this.Items.Add(transaccion);
+            }
+            else
+            {
+                this.Items.Insert(index, transaccion);
+            }
             if (Container.StayInSyncWithDisc)
             {
                 Context.SaveChanges();
@@ -112,7 +126,7 @@ namespace JevoGastosCore.ModelView
         }
         public Transaccion Remove(Transaccion transaccion)
         {
-            Container.TransaccionDAO.Items.Remove(transaccion);
+            this.Items.Remove(transaccion);
             //Actualizando propiedades de navegacion
             transaccion.Origen?.TransaccionesDestino?.Remove(transaccion);
             transaccion.Origen?.TransaccionesOrigen?.Remove(transaccion);
@@ -134,7 +148,7 @@ namespace JevoGastosCore.ModelView
         }
         public void Clear()
         {
-            Container.TransaccionDAO.Items.Clear();
+            this.Items.Clear();
             //Actualizando propiedades de navegacion
             foreach (Etiqueta etiqueta in Container.EtiquetaDAO.Items)
             {
