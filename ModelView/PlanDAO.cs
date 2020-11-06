@@ -65,6 +65,13 @@ namespace JevoGastosCore.ModelView
                         item.VoidPropertyRequested += Item_VoidPropertyRequested;
                     }
                     break;
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (Plan item in e.OldItems)
+                    {
+                        item.PropertyChanged -= Item_PropertyChanged;
+                        item.VoidPropertyRequested -= Item_VoidPropertyRequested;
+                    }
+                    break;
                 default:
                     break;
             }
@@ -147,6 +154,11 @@ namespace JevoGastosCore.ModelView
         }
         public void Clear()
         {
+            foreach (Plan item in Container.PlanDAO.Items)
+            {
+                item.PropertyChanged -= Item_PropertyChanged;
+                item.VoidPropertyRequested -= Item_VoidPropertyRequested;
+            }
             Container.PlanDAO.Items.Clear();
             //Actualizando propiedades de navegación
             foreach (Etiqueta etiqueta in Container.EtiquetaDAO.Items)
@@ -186,7 +198,7 @@ namespace JevoGastosCore.ModelView
             switch (plan.Tipo)
             {
                 case TipoPlan.Diario:
-                    mensual = plan.MetaDiaria * (this.Container.PayDaysDAO.EndDate - DateTime.Today).TotalDays;
+                    mensual = plan.MetaDiaria * ((this.Container.PayDaysDAO.EndDate - DateTime.Today).TotalDays + 1);
                     properties = new List<PlanProperty>() { PlanProperty.MetaDiaria,PlanProperty.Tipo };
                     break;
                 case TipoPlan.Mensual:
@@ -210,7 +222,7 @@ namespace JevoGastosCore.ModelView
                 case TipoPlan.Diario:
                     diario =
                         plan.EsMesFijo
-                        ? plan.Meta / (this.Container.PayDaysDAO.EndDate - this.Container.PayDaysDAO.StartDate).TotalDays
+                        ? plan.Meta / ((this.Container.PayDaysDAO.EndDate - this.Container.PayDaysDAO.StartDate).TotalDays + 1)
                         : plan.Meta;
                     properties = new List<PlanProperty>() { PlanProperty.EsMesFijo, PlanProperty.Meta,PlanProperty.Tipo };
                     break;
@@ -228,14 +240,30 @@ namespace JevoGastosCore.ModelView
         private double CalculateValorActual(Plan plan)
         {
             double respuesta = double.NaN;
-            SetDependentProperties(plan, PlanProperty.ValorActual, new List<PlanProperty>() { PlanProperty.Total, PlanProperty.Etiqueta });
             if (!(plan.Etiqueta is null))
             {
-                respuesta = plan.Etiqueta.CalculateTotal
-                    (
-                    plan.Etiqueta.TransaccionesDestino.Where(p => p.Fecha >= this.Container.PayDaysDAO.StartDate & p.Fecha < this.Container.PayDaysDAO.EndDate),
-                    plan.Etiqueta.TransaccionesOrigen.Where(p => p.Fecha >= this.Container.PayDaysDAO.StartDate & p.Fecha < this.Container.PayDaysDAO.EndDate)
-                    );
+                if (plan.Tipo==TipoPlan.Diario)
+                {
+                    SetDependentProperties(plan, PlanProperty.ValorActual, new List<PlanProperty>() { PlanProperty.Total, PlanProperty.Etiqueta,PlanProperty.Tipo });
+                    respuesta = Math.Min( 
+                        plan.Etiqueta.CalculateTotal
+                        (
+                        plan.Etiqueta.TransaccionesDestino.Where(p => p.Fecha == DateTime.Today),
+                        plan.Etiqueta.TransaccionesOrigen.Where(p => p.Fecha == DateTime.Today)
+                        ),
+                        plan.MetaDiaria
+                        )
+                        ;
+                }
+                else
+                {
+                    SetDependentProperties(plan, PlanProperty.ValorActual, new List<PlanProperty>() { PlanProperty.Total, PlanProperty.Etiqueta });
+                    respuesta = plan.Etiqueta.CalculateTotal
+                        (
+                        plan.Etiqueta.TransaccionesDestino.Where(p => p.Fecha >= this.Container.PayDaysDAO.StartDate & p.Fecha < this.Container.PayDaysDAO.EndDate),
+                        plan.Etiqueta.TransaccionesOrigen.Where(p => p.Fecha >= this.Container.PayDaysDAO.StartDate & p.Fecha < this.Container.PayDaysDAO.EndDate)
+                        );
+                }
             }
             return respuesta;
         }

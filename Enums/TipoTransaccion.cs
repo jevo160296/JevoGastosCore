@@ -2,10 +2,10 @@
 {
     public enum TipoTransaccion
     {
-        Entrada= 2 ^ (4 + TipoEtiqueta.Ingreso)+2^TipoEtiqueta.Cuenta,
-        Movimiento= 2 ^ (4 + TipoEtiqueta.Cuenta) + 2 ^ TipoEtiqueta.Cuenta,
-        Salida= 2 ^ (4 + TipoEtiqueta.Cuenta) + 2 ^ TipoEtiqueta.Gasto,
-        Prestamo= 2 ^ (4 + TipoEtiqueta.Credito) + 2 ^ TipoEtiqueta.Cuenta,
-        Pago= 2 ^ (4 + TipoEtiqueta.Cuenta) + 2 ^ TipoEtiqueta.Credito
+        Entrada = (TipoEtiqueta.Ingreso << 3) + TipoEtiqueta.Cuenta + TipoEtiqueta.Credito,
+        Movimiento = (TipoEtiqueta.Cuenta << 3) + TipoEtiqueta.Cuenta,
+        Salida = (TipoEtiqueta.Cuenta << 3) + (TipoEtiqueta.Credito << 3) + TipoEtiqueta.Gasto,
+        Prestamo = (TipoEtiqueta.Credito << 3) + TipoEtiqueta.Cuenta,
+        Pago = (TipoEtiqueta.Cuenta << 3) + TipoEtiqueta.Credito
     }
 }

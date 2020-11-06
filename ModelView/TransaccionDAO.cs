@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace JevoGastosCore.ModelView
@@ -54,15 +55,29 @@ namespace JevoGastosCore.ModelView
 
         public ObservableCollection<Transaccion> Get()
         {
-            var load = Context.Transacciones.ToList();
-            return Context.Transacciones.Local.ToObservableCollection();
+            IQueryable<Transaccion> query = Context.Transacciones.OrderByDescending(p => p.Fecha);
+            Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Load<Transaccion>(query);
+            ObservableCollection<Transaccion> returnedData = Context.Transacciones.Local.ToObservableCollection();
+            return returnedData;
         }
         public static TipoTransaccion Tipo(Transaccion transaccion)
         {
             TipoEtiqueta tipoEtiquetaOrigen, tipoEtiquetaDestino;
             tipoEtiquetaOrigen = EtiquetaDAO.Tipo(transaccion.Origen);
             tipoEtiquetaDestino = EtiquetaDAO.Tipo(transaccion.Destino);
-            TipoTransaccion tipo = (TipoTransaccion)(2 ^ (4 + (int)tipoEtiquetaOrigen) + 2 ^ (int)tipoEtiquetaDestino);
+            Array TiposDisponibles = Enum.GetValues(typeof(TipoTransaccion));
+            int tipoInt = ((int)tipoEtiquetaOrigen << 3) + (int)tipoEtiquetaDestino;
+            int likeness = 0;
+            int max = 0;
+            foreach (int item in TiposDisponibles)
+            {
+                if ((item & tipoInt)>likeness)
+                {
+                    likeness = (item & tipoInt);
+                    max = item;
+                }
+            }
+            TipoTransaccion tipo = (TipoTransaccion)max;
             return tipo;
         }
 
@@ -103,7 +118,19 @@ namespace JevoGastosCore.ModelView
 
         private Transaccion Add(Transaccion transaccion)
         {
-            this.Container.TransaccionDAO.Items.Add(transaccion);
+            int index = 0;
+            while (index<Items.Count && transaccion.Fecha>Items[index].Fecha)
+            {
+                index++;
+            }
+            if (index==Items.Count)
+            {
+                this.Items.Add(transaccion);
+            }
+            else
+            {
+                this.Items.Insert(index, transaccion);
+            }
             if (Container.StayInSyncWithDisc)
             {
                 Context.SaveChanges();
@@ -112,7 +139,7 @@ namespace JevoGastosCore.ModelView
         }
         public Transaccion Remove(Transaccion transaccion)
         {
-            Container.TransaccionDAO.Items.Remove(transaccion);
+            this.Items.Remove(transaccion);
             //Actualizando propiedades de navegacion
             transaccion.Origen?.TransaccionesDestino?.Remove(transaccion);
             transaccion.Origen?.TransaccionesOrigen?.Remove(transaccion);
@@ -134,7 +161,7 @@ namespace JevoGastosCore.ModelView
         }
         public void Clear()
         {
-            Container.TransaccionDAO.Items.Clear();
+            this.Items.Clear();
             //Actualizando propiedades de navegacion
             foreach (Etiqueta etiqueta in Container.EtiquetaDAO.Items)
             {

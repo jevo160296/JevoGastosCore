@@ -2,9 +2,9 @@
 {
     public enum TipoEtiqueta
     {
-        Ingreso,
-        Cuenta,
-        Gasto,
-        Credito
+        Ingreso=0,
+        Cuenta=1,
+        Gasto=2,
+        Credito=4
     }
 }

@@ -53,25 +53,29 @@ namespace JevoGastosCore.ModelView
         }
         public ObservableCollection<Ingreso> GetIngresos()
         {
-            var load = Context.Ingresos.ToList();
+            IQueryable<Ingreso> query = Context.Ingresos.OrderBy(p => p.Name);
+            Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Load(query);
             ObservableCollection<Ingreso> loadingEtiquetas = Context.Ingresos.Local.ToObservableCollection();
             return loadingEtiquetas;
         }
         public ObservableCollection<Cuenta> GetCuentas()
         {
-            var load = Context.Cuentas.ToList();
+            IQueryable<Cuenta> query = Context.Cuentas.OrderBy(p=>p.EsAhorro).ThenBy(p=>p.Name);
+            Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Load(query);
             ObservableCollection<Cuenta> loadingEtiquetas = Context.Cuentas.Local.ToObservableCollection();
             return loadingEtiquetas;
         }
         public ObservableCollection<Gasto> GetGastos()
         {
-            var load = Context.Gastos.ToList();
+            IQueryable<Gasto> query = Context.Gastos.OrderBy(p => p.Name);
+            Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Load(query);
             ObservableCollection<Gasto> loadingEtiquetas = Context.Gastos.Local.ToObservableCollection();
             return loadingEtiquetas;
         }
         public ObservableCollection<Credito> GetCreditos()
         {
-            var load = Context.Creditos.ToList();
+            IQueryable<Credito> query = Context.Creditos.OrderBy(p => p.Name);
+            Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Load(query);
             ObservableCollection<Credito> loadingEtiquetas = Context.Creditos.Local.ToObservableCollection();
             return loadingEtiquetas;
         }

@@ -42,7 +42,7 @@ namespace JevoGastosCore.ModelView
         private double CalculateLibre()
         {
             return 
-                this.Container.CuentaDAO.Items.Sum(p => p.Total) +
+                this.Container.CuentaDAO.Items.Where(p=>!p.EsAhorro).Sum(p => p.Total) +
                 2 * this.Container.PlanDAO.Items.Where(p=>p.Etiqueta is Ingreso).Sum(p=>p.Falta) +
                 2 * this.Container.PlanDAO.Items.Where(p => p.Etiqueta is Cuenta).Sum(p => p.Falta) -
                 this.Container.PlanDAO.Items.Sum(p => p.Falta);
