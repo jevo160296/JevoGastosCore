@@ -30,7 +30,7 @@ namespace JevoGastosCore.ModelView
             }
         }
 
-        private void Items_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        protected override void Items_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             startDate = null;
             endDate = null;

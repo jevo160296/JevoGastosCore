@@ -1,9 +1,10 @@
-﻿using JevoGastosCore.Esqueleto;
+﻿using EntityCoreBasics;
+using System.ComponentModel;
 
 namespace JevoGastosCore.ModelView
 {
     public abstract class JevoGastosDAO<T> : DAO<T, GastosContext, GastosContainer>
-        where T : class
+        where T : class,INotifyPropertyChanged
     {
         public JevoGastosDAO(GastosContainer gastosContainer)
         {

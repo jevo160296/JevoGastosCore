@@ -17,7 +17,22 @@ namespace JevoGastosCore
         public DbSet<PayDay> PayDays { get; set; }
         #endregion
         #region Configuration
-        private static string dbname = "db.db";
+        private string dbname = "db.db";
+        public string DbName
+        {
+            get 
+            {
+                return dbname;
+            }
+            set
+            {
+                if (value!=dbname)
+                {
+                    dbname = value;
+                    this.Database.GetDbConnection().ConnectionString=$"Filename={DbPath}";
+                }
+            }
+        }
         public string FolderPath { get; set; } = null;
         public string DbPath { get => Path.Combine(FolderPath, dbname); }
         #endregion
@@ -29,6 +44,12 @@ namespace JevoGastosCore
         public GastosContext(string folderpath) : base()
         {
             FolderPath = folderpath;
+            Database.Migrate();
+        }
+        public GastosContext(string folderpath,string dbname)
+        {
+            FolderPath = folderpath;
+            this.dbname = dbname;
             Database.Migrate();
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

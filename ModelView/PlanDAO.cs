@@ -54,21 +54,20 @@ namespace JevoGastosCore.ModelView
             }
         }
 
-        private void Items_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        protected override void Items_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            base.Items_CollectionChanged(sender, e);
             switch (e.Action)
             {
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                case NotifyCollectionChangedAction.Add:
                     foreach (Plan item in e.NewItems)
                     {
-                        item.PropertyChanged += Item_PropertyChanged;
                         item.VoidPropertyRequested += Item_VoidPropertyRequested;
                     }
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     foreach (Plan item in e.OldItems)
                     {
-                        item.PropertyChanged -= Item_PropertyChanged;
                         item.VoidPropertyRequested -= Item_VoidPropertyRequested;
                     }
                     break;
@@ -113,7 +112,7 @@ namespace JevoGastosCore.ModelView
             }
         }
 
-        private void Item_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        protected override void Item_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             PlanProperty property;
             bool parsed = Enum.TryParse(e.PropertyName, out property);
@@ -122,7 +121,7 @@ namespace JevoGastosCore.ModelView
                 property = PlanProperty.NotFound;
             }
             UpdateDependentProperties((Plan)sender, property);
-            OnPropertyChanged(e.PropertyName);
+            base.Item_PropertyChanged(sender, e);
         }
         public ObservableCollection<Plan> Get()
         {

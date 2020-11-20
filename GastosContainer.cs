@@ -1,8 +1,10 @@
-﻿using JevoGastosCore.Clases;
-using JevoGastosCore.Esqueleto;
+﻿using EntityCoreBasics;
+using JevoCrypt;
+using JevoCrypt.Classes;
 using JevoGastosCore.ModelView;
 using JevoGastosCore.ModelView.EtiquetaMV;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -10,6 +12,23 @@ namespace JevoGastosCore
 {
     public class GastosContainer : Container<GastosContext>,INotifyPropertyChanged
     {
+        #region Exceptions
+        public class FileNotUserException : Exception
+        {
+            public FileNotUserException() : base() { }
+            public FileNotUserException(string message) : base(message) { }
+        }
+        public class UserExistsException : Exception
+        {
+            public UserExistsException() : base() { }
+            public UserExistsException(string message) : base(message) { }
+        }
+        public class PasswordException : Exception
+        {
+            public PasswordException() : base() { }
+            public PasswordException(string message) : base(message) { }
+        }
+        #endregion
         private EtiquetaDAO etiquetaDao;
         private IngresoDAO ingresoDao;
         private CuentaDAO cuentaDao;
@@ -19,6 +38,9 @@ namespace JevoGastosCore
         private PlanDAO planDao;
         private PayDaysDAO payDaysDao;
         private Medidas medidas;
+        private readonly User user;
+        private readonly UsersContainer usersContainer;
+
         private bool stayInSyncWithDisc;
 
         public EtiquetaDAO EtiquetaDAO
@@ -129,16 +151,64 @@ namespace JevoGastosCore
             }
         }
         public bool StayInSyncWithDisc => stayInSyncWithDisc;
+        public User User => user;
+        public UsersContainer UsersContainer => usersContainer;
 
-        public GastosContainer(string folderpath,bool stayInSyncWithDisc=true)
+        public GastosContainer(string folderpath, User user,UsersContainer usersContainer,bool stayInSyncWithDisc = true, string dbname = "db.db")
         {
-            this.Context = new GastosContext(folderpath);
+            this.Context = new GastosContext(folderpath,dbname);
             this.stayInSyncWithDisc = stayInSyncWithDisc;
+            this.user = user;
+            this.usersContainer = usersContainer;
         }
+
         public void SaveChanges()
         {
             this.Context.SaveChanges();
             this.Context.Database.ExecuteSqlRaw("VACUUM");
+        }
+        public bool ChangeUserName(string name,string password,string newName)
+        {
+            string oldName = this.User.UserName;
+            bool correctPassword = this.User.IsCorrectPassword(password);
+            bool userNameChanged,fileExists;
+            if (correctPassword)
+            {
+                userNameChanged = this.UsersContainer.UserDAO.ChangeUserName(this.User, password, newName);
+                if (userNameChanged)
+                {
+                    fileExists=!ChangeDBName(newName);
+                    if (fileExists)
+                    {
+                        this.UsersContainer.UserDAO.ChangeUserName(this.User, password, name);
+                        throw new FileNotUserException($"Existe un archivo para el usuario {newName} posiblemente el usuario fue eliminado pero se guardó su información.");
+                    }
+                }
+                else
+                {
+                    throw new UserExistsException($"Ya existe un usuario llamado {newName}");
+                }
+            }
+            else
+            {
+                userNameChanged = false;
+                throw new PasswordException($"Contraseña incorrecta.");
+            }
+            return userNameChanged;
+        }
+        public void DeleteDB() => Context.Database.EnsureDeleted();
+        private bool ChangeDBName(string newName)
+        {
+            try
+            {
+                System.IO.File.Move( this.Context.DbPath, System.IO.Path.Combine(this.Context.FolderPath,newName + ".db"));
+            }
+            catch(Exception)
+            {
+                return false;
+            }
+            this.Context.DbName = newName + ".db";
+            return true;
         }
 
         private void Dao_PropertyChanged(object sender, PropertyChangedEventArgs e)

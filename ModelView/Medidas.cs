@@ -1,5 +1,4 @@
-﻿using JevoGastosCore.Esqueleto;
-using JevoGastosCore.Model;
+﻿using JevoGastosCore.Model;
 using System.Linq;
 
 namespace JevoGastosCore.ModelView
