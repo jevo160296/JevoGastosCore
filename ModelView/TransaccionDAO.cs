@@ -60,6 +60,7 @@ namespace JevoGastosCore.ModelView
             ObservableCollection<Transaccion> returnedData = Context.Transacciones.Local.ToObservableCollection();
             return returnedData;
         }
+
         public static TipoTransaccion Tipo(Transaccion transaccion)
         {
             TipoEtiqueta tipoEtiquetaOrigen, tipoEtiquetaDestino;
@@ -119,7 +120,7 @@ namespace JevoGastosCore.ModelView
         private Transaccion Add(Transaccion transaccion)
         {
             int index = 0;
-            while (index<Items.Count && transaccion.Fecha>Items[index].Fecha)
+            while (index<Items.Count && transaccion.Fecha<Items[index].Fecha)
             {
                 index++;
             }
