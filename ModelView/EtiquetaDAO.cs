@@ -28,7 +28,8 @@ namespace JevoGastosCore.ModelView
 
         public ObservableCollection<Etiqueta> Get()
         {
-            var load = Context.Etiquetas.ToList();
+            IQueryable<Etiqueta> query = Context.Etiquetas.OrderBy(p => p.Name);
+            Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Load(query);
             ObservableCollection<Etiqueta> loadingEtiquetas = Context.Etiquetas.Local.ToObservableCollection();
             return loadingEtiquetas;
         }

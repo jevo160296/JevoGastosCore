@@ -16,7 +16,7 @@ namespace JevoGastosCore.ModelView
             Container.PayDaysDAO.Items.CollectionChanged += PayDays_CollectionChanged;
         }
 
-        private void PayDays_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void PayDays_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
@@ -54,7 +54,7 @@ namespace JevoGastosCore.ModelView
             }
         }
 
-        protected override void Items_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        protected override void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             base.Items_CollectionChanged(sender, e);
             switch (e.Action)

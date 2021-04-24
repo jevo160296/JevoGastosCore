@@ -5,10 +5,11 @@ using System.Linq;
 using System;
 using JevoGastosCore.Clases;
 using System.Collections.Generic;
+using EntityCoreBasics;
 
 namespace JevoGastosCore.Model
 {
-    public class Plan : INotifyPropertyChanged
+    public class Plan : INotifyPropertyChanged,IHaveId
     {
         private int etiquetaId;
         private Etiqueta etiqueta;
@@ -45,8 +46,11 @@ namespace JevoGastosCore.Model
                     etiqueta = value;
                     OnPropertyChanged();
                 }
-                etiqueta.PropertyChanged -= Etiqueta_PropertyChanged;
-                etiqueta.PropertyChanged += Etiqueta_PropertyChanged;
+                if(!(etiqueta is null))
+                {
+                    etiqueta.PropertyChanged -= Etiqueta_PropertyChanged;
+                    etiqueta.PropertyChanged += Etiqueta_PropertyChanged;
+                }
             }
         }
 

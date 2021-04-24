@@ -4,13 +4,14 @@ using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using EntityCoreBasics;
 
 namespace JevoGastosCore.Model
 {
     /// <summary>
     /// Representa una etiqueta
     /// </summary>
-    public abstract class Etiqueta:INotifyPropertyChanged
+    public abstract class Etiqueta:INotifyPropertyChanged,IHaveId
     {
         protected double total;
         private string name;
@@ -31,6 +32,7 @@ namespace JevoGastosCore.Model
 
         //Ignored fields
         private bool totalUpdated = false;
+        private bool totalLoaded = false;
 
         public ObservableCollection<Transaccion> TransaccionesOrigen { get; set; }
         public ObservableCollection<Transaccion> TransaccionesDestino { get; set; }
@@ -102,7 +104,11 @@ namespace JevoGastosCore.Model
         public void UpdateTotal()
         {
             double total = CalculateTotal(TransaccionesDestino, TransaccionesOrigen);
-            if (!(this.total == total))
+            if (!totalLoaded)
+            {
+                this.total = total;
+                totalLoaded = true;
+            }else if (!(this.total == total))
             {
                 Total = total;
             }

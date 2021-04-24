@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EntityCoreBasics;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace JevoGastosCore.Model
 {
-    public class PayDay:INotifyPropertyChanged,IComparable
+    public class PayDay:INotifyPropertyChanged,IComparable,IHaveId
     {
         private int day;
         static public int EndMonth => 31;

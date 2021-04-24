@@ -4,7 +4,7 @@ using System.ComponentModel;
 namespace JevoGastosCore.ModelView
 {
     public abstract class JevoGastosDAO<T> : DAO<T, GastosContext, GastosContainer>
-        where T : class,INotifyPropertyChanged
+        where T : class,INotifyPropertyChanged,IHaveId
     {
         public JevoGastosDAO(GastosContainer gastosContainer)
         {

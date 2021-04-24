@@ -1,10 +1,11 @@
-﻿using System;
+﻿using EntityCoreBasics;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace JevoGastosCore.Model
 {
-    public class Transaccion : INotifyPropertyChanged
+    public class Transaccion : INotifyPropertyChanged,IHaveId
     {
         private DateTime fecha;
         private int origenId;

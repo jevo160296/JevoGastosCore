@@ -153,10 +153,13 @@ namespace JevoGastosCore
         public bool StayInSyncWithDisc => stayInSyncWithDisc;
         public User User => user;
         public UsersContainer UsersContainer => usersContainer;
-
-        public GastosContainer(string folderpath, User user,UsersContainer usersContainer,bool stayInSyncWithDisc = true, string dbname = "db.db")
+        public GastosContainer(string folderPath):this(folderPath,new User("db",""),new UsersContainer(folderPath))
         {
-            this.Context = new GastosContext(folderpath,dbname);
+           
+        }
+        public GastosContainer(string folderpath, User user,UsersContainer usersContainer,bool stayInSyncWithDisc = true)
+        {
+            this.Context = new GastosContext(folderpath,user.UserName+".db");
             this.stayInSyncWithDisc = stayInSyncWithDisc;
             this.user = user;
             this.usersContainer = usersContainer;
