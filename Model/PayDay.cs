@@ -1,4 +1,5 @@
 ﻿using EntityCoreBasics;
+using JevoGastosCore.Clases;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

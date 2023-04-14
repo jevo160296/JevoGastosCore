@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using EntityCoreBasics;
+using JevoGastosCore.Clases;
 
 namespace JevoGastosCore.Model
 {

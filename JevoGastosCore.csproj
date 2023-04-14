@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\EntityCoreBasics\EntityCoreBasics.csproj" />
-    <ProjectReference Include="..\..\JevoCrypt\JevoCrypt.csproj" />
+    <ProjectReference Include="..\EntityCoreBasics\EntityCoreBasics.csproj" />
+    <ProjectReference Include="..\JevoCrypt\JevoCrypt.csproj" />
   </ItemGroup>
 
 </Project>

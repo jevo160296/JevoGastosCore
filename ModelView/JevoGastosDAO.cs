@@ -1,4 +1,5 @@
 ﻿using EntityCoreBasics;
+using JevoGastosCore.Clases;
 using System.ComponentModel;
 
 namespace JevoGastosCore.ModelView

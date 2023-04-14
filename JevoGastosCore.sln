@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29806.167
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JevoGastosCore", "JevoGastosCore.csproj", "{E30AB682-19FA-4206-A530-6D1D31EF102A}"
 EndProject
@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityCoreBasics", "..\..\EntityCoreBasics\EntityCoreBasics.csproj", "{6FDFD9C1-EFD7-4717-8E7C-ADB12B916ADC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityCoreBasics", "..\EntityCoreBasics\EntityCoreBasics.csproj", "{6FDFD9C1-EFD7-4717-8E7C-ADB12B916ADC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
